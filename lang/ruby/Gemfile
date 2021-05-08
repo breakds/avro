@@ -25,6 +25,6 @@ gem 'parallel'
 # webrick is no longer included with Ruby 3.0+
 gem 'webrick'
 
-# rubocop v1.0 and later introduces new Lint cops to be addressed
-gem 'rubocop', '< 1.0'
+# next major version will enable new cops
+gem 'rubocop', '< 2'
 gem 'rdoc'
