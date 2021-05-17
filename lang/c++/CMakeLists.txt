@@ -108,7 +108,7 @@ set (AVRO_SOURCE_FILES
         impl/Resolver.cc impl/Validator.cc
         )
 
-add_library (avrocpp SHARED ${AVRO_SOURCE_FILES})
+add_library(avrocpp SHARED ${AVRO_SOURCE_FILES})
 
 set_property (TARGET avrocpp
     APPEND PROPERTY COMPILE_DEFINITIONS AVRO_DYN_LINK)
