@@ -16,7 +16,7 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-cmake_minimum_required (VERSION 2.6)
+cmake_minimum_required (VERSION 3.0)
 
 set (CMAKE_LEGACY_CYGWIN_WIN32 0)
 
@@ -192,21 +192,54 @@ add_dependencies (AvrogencppTests bigrecord_hh bigrecord_r_hh bigrecord2_hh
     recursive_hh reuse_hh circulardep_hh tree1_hh tree2_hh crossref_hh
     primitivetypes_hh empty_record_hh)
 
+###############
+## Packaging ##
+###############
+
 include (InstallRequiredSystemLibraries)
+include(CMakePackageConfigHelpers)
+include(GNUInstallDirs)
 
 set (CPACK_PACKAGE_FILE_NAME "avrocpp-${AVRO_VERSION_MAJOR}")
 
 include (CPack)
 
+write_basic_package_version_file(
+    ${PROJECT_NAME}ConfigVersion.cmake
+    VERSION "${AVRO_VERSION_MAJOR}.${AVRO_VERSION_MINOR}.${AVRO_VERSION_PATCH}"
+    COMPATIBILITY SameMajorVersion)
+
+set(${PROJECT_NAME}_INSTALL_CMAKEDIR "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}"
+    CACHE STRING "Path to install ${PROJECT_NAME} Config*.cmake files to.")
+
+configure_package_config_file(
+    ${PROJECT_SOURCE_DIR}/cmake/${PROJECT_NAME}Config.cmake.in
+    ${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
+    INSTALL_DESTINATION ${${PROJECT_NAME}_INSTALL_CMAKEDIR}
+    NO_SET_AND_CHECK_MACRO
+    NO_CHECK_REQUIRED_COMPONENTS_MACRO)
+
 install (TARGETS avrocpp avrocpp_s
-    LIBRARY DESTINATION lib
-    ARCHIVE DESTINATION lib
-    RUNTIME DESTINATION lib)
+    EXPORT ${PROJECT_NAME}_Targets
+    LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+    ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+    RUNTIME DESTINATION "${CMAKE_INSTALL_LIBDIR}")
+
+install(
+    EXPORT ${PROJECT_NAME}_Targets
+    NAMESPACE avrocpp::
+    FILE ${PROJECT_NAME}Targets.cmake
+    DESTINATION ${${PROJECT_NAME}_INSTALL_CMAKEDIR})
 
 install (TARGETS avrogencpp RUNTIME DESTINATION bin)
 
 install (DIRECTORY api/ DESTINATION include/avro
     FILES_MATCHING PATTERN *.hh)
+
+install(FILES
+    ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
+    DESTINATION ${${PROJECT_NAME}_INSTALL_CMAKEDIR})
 
 if (NOT CMAKE_BUILD_TYPE)
     set (CMAKE_BUILD_TYPE Release CACHE STRING
